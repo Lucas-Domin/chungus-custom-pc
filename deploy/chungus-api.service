@@ -1,0 +1,21 @@
+[Unit]
+Description=Chungus Custom PC - JSON Server
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/lib/chungus
+ExecStart=/usr/bin/node /opt/chungus-api/node_modules/json-server/lib/cli/bin.js --watch /var/lib/chungus/db.json --host 127.0.0.1 --port 3000
+Restart=always
+RestartSec=3
+Environment=NODE_ENV=production
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/chungus
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

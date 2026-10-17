@@ -1,0 +1,295 @@
+<div *ngIf="visible" class="notification">
+  <div class="container notification-inner">
+    <p>{{ mensaje }}</p>
+    <div class="notification-actions">
+      <button (click)="pausado=!pausado" [attr.aria-pressed]="pausado">
+        {{ pausado ? 'Reanudar' : 'Pausar' }}
+      </button>
+      <button (click)="visible=false" aria-label="Cerrar notificaciones">×</button>
+    </div>
+  </div>
+</div>
+<section class="hero" id="inicio">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">
+        <span class="live-dot" aria-hidden="true"></span>
+        HECHO A TU MEDIDA · LIMA, PERÚ
+      </p>
+      <h1>
+        Tu próxima PC.
+        <br />
+        <em>A tu manera.</em>
+      </h1>
+      <p class="hero-description">
+        Para tus partidas, tus proyectos y todo lo que viene. Elige tus componentes y encuentra la
+        configuración que va contigo.
+      </p>
+      <a class="button" href="#configurador">
+        Configurar mi Chungus
+        <span aria-hidden="true">↗</span>
+      </a>
+      <div class="hero-benefits">
+        <span>Precios en soles</span>
+        <span>Compatibilidad básica</span>
+        <span>Cotización al instante</span>
+      </div>
+    </div>
+    <figure class="hero-visual">
+      <img
+        src="assets/pc-hero.png"
+        width="1254"
+        height="1254"
+        alt="Ilustración de una torre de PC negra con panel de vidrio y ventiladores iluminados en verde"
+        fetchpriority="high"
+      />
+      <figcaption>
+        <span>CHUNGUS / CUSTOM SERIES</span>
+        <span>Imagen conceptual</span>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+<div class="container py-3" *ngIf="cargando" role="status">Cargando componentes…</div>
+<div class="container alert alert-danger" *ngIf="error" role="alert">
+  {{error}}
+  <button class="btn btn-outline-dark" (click)="cargar()">Reintentar</button>
+</div>
+<ng-container *ngIf="!cargando && !error">
+  <section class="profiles-section">
+    <div class="container">
+      <div class="section-intro">
+        <h2>Una PC para lo que haces.</h2>
+        <p>Elige una base. Después, hazla tuya.</p>
+      </div>
+      <div class="profiles">
+        <button
+          *ngFor="let uso of perfiles"
+          class="profile"
+          [ngClass]="{active:datos.uso===uso}"
+          (click)="perfil(uso)"
+        >
+          <span class="profile-content">
+            <strong>{{uso === 'creacion' ? 'Creación de contenido' : (uso | titlecase)}}</strong>
+            <span>{{precioPerfil(uso) | currency:'PEN':'S/ ':'1.2-2':'es-PE'}}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </section>
+  <form #form="ngForm" (ngSubmit)="guardar(form)" novalidate>
+    <section class="builder-section" id="configurador">
+      <div class="container">
+        <div class="section-intro">
+          <h2>Arma tu Chungus.</h2>
+          <p>{{id ? 'Editando cotización #' + id : 'Elige tus componentes.'}}</p>
+        </div>
+        <div class="builder-grid">
+          <div>
+            <div class="builder-panel">
+              <h3>Tu configuración</h3>
+              <div class="component-selectors">
+                <div class="form-field" *ngFor="let cat of categorias">
+                  <label [for]="cat.id">{{cat.nombre}}</label>
+                  <select
+                    class="form-select"
+                    [id]="cat.id"
+                    [name]="cat.id"
+                    [(ngModel)]="seleccion[cat.id]"
+                    (ngModelChange)="resultado = ''"
+                  >
+                    <option *ngFor="let p of opciones(cat.id)" [value]="p.id">
+                      {{p.nombre}} — {{p.precio | currency:'PEN':'S/ ':'1.2-2':'es-PE'}}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="base-package">
+                Gabinete, refrigeración y ensamblaje incluidos: S/ 250.00.
+              </div>
+            </div>
+            <div
+              class="alert mt-3"
+              [ngClass]="errores.length ? 'alert-warning' : 'alert-success'"
+              aria-live="polite"
+            >
+              <span *ngIf="!errores.length">Los componentes son compatibles.</span>
+              <div *ngFor="let error of errores">{{error}}</div>
+            </div>
+            <p class="fine-print">
+              Revisión básica de socket, RAM y fuente. No incluye verificación de BIOS, dimensiones
+              o conectores.
+            </p>
+          </div>
+          <aside class="summary-panel">
+            <p class="eyebrow">TU PRÓXIMA PC</p>
+            <h3>Cada pieza cuenta.</h3>
+            <ul>
+              <li *ngFor="let p of piezas">
+                {{p.nombre}}
+                <span>{{p.precio | currency:'PEN':'S/ ':'1.2-2':'es-PE'}}</span>
+              </li>
+            </ul>
+            <div class="summary-base">Gabinete + refrigeración + armado: S/ 250.00</div>
+            <div class="total-row">
+              <span>Total</span>
+              <strong>{{total | currency:'PEN':'S/ ':'1.2-2':'es-PE'}}</strong>
+            </div>
+            <label for="presupuesto">Presupuesto en soles</label>
+            <input
+              class="form-control"
+              id="presupuesto"
+              name="presupuesto"
+              type="number"
+              [(ngModel)]="datos.presupuesto"
+              min="0.01"
+              max="1000000"
+              required
+            />
+            <p class="budget-status" [class.text-danger]="datos.presupuesto < total">
+              {{datos.presupuesto >= total ? 'Disponible: ' : 'Te falta: '}}{{(datos.presupuesto >=
+              total ? datos.presupuesto-total : total-datos.presupuesto) | currency:'PEN':'S/
+              ':'1.2-2':'es-PE'}}
+            </p>
+          </aside>
+        </div>
+      </div>
+    </section>
+    <section class="quote-section">
+      <div class="container quote-grid">
+        <div class="quote-intro">
+          <p class="eyebrow">GUARDA TU IDEA</p>
+          <h2>Tu PC, lista para retomar.</h2>
+          <p>Guarda tu configuración y revísala en Cotizaciones.</p>
+          <p>Demostración académica. Las cotizaciones se muestran en este navegador. Usa datos ficticios.</p>
+          <a routerLink="/cotizaciones" class="button">Ver cotizaciones</a>
+        </div>
+        <div class="quote-form">
+          <h3>{{id ? 'Actualizar' : 'Guardar'}} cotización</h3>
+          <div class="form-field">
+            <label for="nombre">Tu nombre</label>
+            <input
+              class="form-control"
+              id="nombre"
+              name="nombre"
+              [(ngModel)]="datos.nombre"
+              #nombre="ngModel"
+              required
+              minlength="2"
+              maxlength="80"
+            />
+            <small class="text-danger" *ngIf="nombre.invalid && nombre.touched">
+              Escribe un nombre de 2 a 80 caracteres.
+            </small>
+          </div>
+          <div class="form-field">
+            <label for="correo">Correo electrónico</label>
+            <input
+              class="form-control"
+              id="correo"
+              name="correo"
+              type="email"
+              [(ngModel)]="datos.correo"
+              #correo="ngModel"
+              required
+              email
+              maxlength="120"
+            />
+            <small class="text-danger" *ngIf="correo.invalid && correo.touched">
+              Escribe un correo válido.
+            </small>
+          </div>
+          <div class="form-field">
+            <label for="uso">Uso principal</label>
+            <select id="uso" name="uso" class="form-select" [(ngModel)]="datos.uso" required>
+              <option *ngFor="let uso of perfiles" [value]="uso">{{uso | titlecase}}</option>
+            </select>
+          </div>
+          <p role="status" aria-live="polite">{{resultado}}</p>
+          <button type="submit" class="button full" [disabled]="guardando">
+            {{ textoGuardar }}
+          </button>
+        </div>
+      </div>
+    </section>
+  </form>
+  <section class="catalog-section">
+    <div class="container">
+      <h2>Las piezas de tu próxima PC.</h2>
+      <div class="catalog-controls">
+        <div>
+          <label for="categoria">Categoría</label>
+          <select id="categoria" [(ngModel)]="categoria">
+            <option value="todas">Todas las categorías</option>
+            <option *ngFor="let cat of categorias" [value]="cat.id">{{cat.nombre}}</option>
+          </select>
+        </div>
+        <div>
+          <label for="busqueda">Buscar componente</label>
+          <input
+            id="busqueda"
+            type="search"
+            [(ngModel)]="busqueda"
+            placeholder="Ryzen, DDR5, 1 TB…"
+          />
+        </div>
+      </div>
+      <div class="catalog-grid">
+        <article class="catalog-card" *ngFor="let p of filtradas">
+          <h3>{{p.nombre}}</h3>
+          <p>{{p.detalle}}</p>
+          <strong>{{p.precio | currency:'PEN':'S/ ':'1.2-2':'es-PE'}}</strong>
+        </article>
+      </div>
+      <p *ngIf="!filtradas.length">No encontramos componentes con esa búsqueda.</p>
+    </div>
+  </section>
+</ng-container>
+<section class="contact-section" id="contacto" aria-labelledby="titulo-contacto">
+  <div class="container contact-inner">
+    <div>
+      <p class="eyebrow">DESDE LIMA, PARA TU PRÓXIMO PROYECTO</p>
+      <h2 id="titulo-contacto">Hablemos de tu próxima PC.</h2>
+      <p>Chungus Custom PC · Lima Metropolitana, Perú.</p>
+    </div>
+    <div class="contact-links">
+      <a href="#contacto" (click)="$event.preventDefault()" class="phone-link">
+        <span>Teléfono de demostración</span>
+        <strong>
+          +51 1 000 0000
+          <span aria-hidden="true">↗</span>
+        </strong>
+      </a>
+      <div class="social-links">
+        <a
+          href="https://www.instagram.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Abrir Instagram, plataforma general; no es un perfil de Chungus"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="5" />
+            <circle cx="12" cy="12" r="4" />
+            <circle cx="17.5" cy="6.5" r=".8" />
+          </svg>
+          Instagram
+        </a>
+        <a
+          href="https://www.facebook.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Abrir Facebook, plataforma general; no es un perfil de Chungus"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M14 21v-8h3l.5-4H14V7c0-1 .5-2 2-2h2V2h-3c-3 0-5 2-5 5v2H7v4h3v8" />
+          </svg>
+          Facebook
+        </a>
+      </div>
+      <p class="contact-demo">
+        Emprendimiento ficticio. Teléfono no operativo y enlaces a las plataformas, sin perfiles
+        comerciales.
+      </p>
+    </div>
+  </div>
+</section>

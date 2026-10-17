@@ -1,0 +1,27 @@
+<header class="site-header">
+  <div class="container nav-inner">
+    <a routerLink="/" class="brand">
+      <span class="brand-mark">
+        C
+        <span>_</span>
+      </span>
+      <span>
+        CHUNGUS
+        <small>CUSTOM PC</small>
+      </span>
+    </a>
+    <nav aria-label="Navegación principal">
+      <a routerLink="/" routerLinkActive="nav-active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">
+        Configurar PC
+      </a>
+      <a routerLink="/cotizaciones" routerLinkActive="nav-active" ariaCurrentWhenActive="page">Cotizaciones</a>
+    </nav>
+  </div>
+</header>
+<main><router-outlet /></main>
+<footer>
+  <div class="container footer-inner">
+    <span>Chungus Custom PC · Lima, Perú</span>
+    <span>Avance 2 · Angular · Precios de demostración</span>
+  </div>
+</footer>

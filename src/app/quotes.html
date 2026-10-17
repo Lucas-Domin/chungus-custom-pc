@@ -1,0 +1,40 @@
+<section class="container py-5 quotes-page">
+  <p class="eyebrow">TUS CONFIGURACIONES</p>
+  <h1>Cotizaciones</h1>
+  <a routerLink="/" class="button mb-4">Nueva cotización</a>
+  <p *ngIf="cargando" role="status">Cargando cotizaciones…</p>
+  <div class="alert alert-danger" *ngIf="error" role="alert">
+    {{ error }}
+    <button class="btn btn-outline-dark" (click)="cargar()">Reintentar</button>
+  </div>
+  <p class="quotes-empty" *ngIf="!cargando && !error && !lista.length">
+    Aún no hay cotizaciones. Configura tu primera PC.
+  </p>
+  <div class="row g-3">
+    <div class="col-md-6" *ngFor="let cotizacion of lista">
+      <article class="card h-100">
+        <div class="card-body">
+          <h2 class="h4">{{ cotizacion.datos.nombre }}</h2>
+          <p>
+            {{ cotizacion.datos.uso | titlecase }} · {{ cotizacion.fecha | date: "dd/MM/yyyy HH:mm"
+            }}
+          </p>
+          <p>{{ cotizacion.datos.correo }}</p>
+          <p class="h4">{{ cotizacion.total | currency: "PEN" : "S/ " : "1.2-2" : "es-PE" }}</p>
+          <div class="d-flex gap-2">
+            <a class="btn btn-dark" routerLink="/" [queryParams]="{ editar: cotizacion.id }">
+              Ver / editar
+            </a>
+            <button
+              class="btn btn-outline-danger"
+              (click)="eliminar(cotizacion)"
+              [disabled]="eliminando === cotizacion.id"
+            >
+              {{ eliminando === cotizacion.id ? "Eliminando…" : "Eliminar" }}
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
